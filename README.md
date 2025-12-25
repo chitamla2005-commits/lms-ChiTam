@@ -1,83 +1,62 @@
-LMS Management System - Intern Test 
+🎓 LMS Training Management System - ChiTam Edition
+Dự án Hệ thống Quản lý Đào tạo (LMS) được xây dựng trên nền tảng công nghệ hiện đại, tập trung vào trải nghiệm người dùng tối ưu, hiệu năng cao và giao diện linh hoạt.
 
-Dự án xây dựng một phần nhỏ của hệ thống Learning Management System (LMS).
+🌟 Tính năng nổi bật
+   *🔐 Bảo mật hệ thống (Authentication):
 
-🛠 Công nghệ sử dụng 
+-Quản lý phiên đăng nhập thông qua cookies-next.
 
+-Sử dụng Next.js Middleware để phân quyền truy cập: Chặn người dùng chưa đăng nhập vào trang quản trị và ngăn người dùng đã đăng nhập quay lại trang Login.
 
-Framework: Next.js (App Router) 
+   *🌓 Chế độ Sáng/Tối (Theme System):
 
+-Tích hợp nút chuyển đổi theme ngay tại trang Login và Dashboard.
 
-UI Library: Ant Design cho bảng và form 
-+1
+-Đặc biệt: Xử lý triệt để lỗi Nháy sáng (FOUC) khi tải lại trang bằng kỹ thuật Blocking Script và suppressHydrationWarning.
 
+-Đồng bộ hoàn hảo giữa Ant Design darkAlgorithm và Tailwind CSS dark class.
 
-Styling: Tailwind CSS hỗ trợ Dark/Light mode. 
+   *📚 Quản lý Khóa học (CRUD):
 
+-Xem danh sách: Hiển thị dưới dạng bảng chuyên nghiệp, hỗ trợ phân trang.
 
-State Management: Context API để quản lý Auth. 
+-Thêm mới: Form nhập liệu với Validation chặt chẽ.
 
-📋 Chức năng chính 
+-Chỉnh sửa: Cập nhật thông tin chi tiết dựa trên Dynamic Route [id].
 
+-Xóa: Chức năng xóa an toàn với xác nhận (Popconfirm) để tránh thao tác nhầm.
 
-Xác thực: Login với validation email và password (tối thiểu 6 ký tự).
+🛠 Công nghệ sử dụng
+Framework: Next.js 15 (App Router).
 
+-UI Library: Ant Design 5 (Antd).
 
-Bảo mật: Sử dụng Middleware để bảo vệ các route /courses.
+-Styling: Tailwind CSS v4.
 
-Quản lý khóa học (CRUD):
+-State Management: React Hooks (useState, useEffect, use).
 
-Xem danh sách phân trang (10 items/page).
+-HTTP Client: Axios (Interceptors để quản lý API Base URL).
 
-Thêm mới khóa học tại /courses/add.
+-Icons: Ant Design Icons.
 
-Cập nhật thông tin tại /courses/edit/:id.
+📂 Cấu trúc thư mục
+src/
+├── app/
+│   ├── (auth)/login/     # Trang đăng nhập & logic đổi theme tại bìa
+│   ├── courses/          # Layout Dashboard, Navbar và Footer (ChiTam)
+│   │   ├── page.tsx      # Danh sách khóa học
+│   │   ├── create/       # Trang thêm mới
+│   │   └── [id]/         # Trang chỉnh sửa chi tiết
+│   └── layout.tsx        # Root layout xử lý chặn nháy sáng
+├── components/           # Navbar, Footer dùng chung
+├── utils/                # Cấu hình AxiosInstance
+└── middleware.ts         # Bảo mật Route và Token
 
-Xóa khóa học sử dụng phương thức DELETE.
+💡 Giải quyết vấn đề (Problem Solving)
+Trong quá trình thực hiện, dự án đã giải quyết các thách thức kỹ thuật quan trọng:
 
-🚀 Hướng dẫn chạy dự án 
+-Hydration Error: Xử lý sự sai khác giữa Server và Client khi render Theme bằng cách sử dụng suppressHydrationWarning và useEffect hợp lý.
 
+-Antd message error: Giải quyết lỗi message.success is not a function bằng cách bọc App component từ Ant Design ở cấp Layout.
 
-Clone repository: git clone <link-github-cua-ban> 
-+1
-
-
-Cài đặt thư viện: npm install 
-
-Cấu hình biến môi trường: Tạo file .env.local với nội dung:
-
-
-NEXT_PUBLIC_API_URL=https://6938e7e24618a71d77d19513.mockapi.io/api/v1 
-
-
-Chạy dev: npm run dev 
-
-3. Kiểm tra các quy tắc Validation 
-
-Hãy đảm bảo Form trong dự án của bạn tuân thủ các quy tắc sau trước khi nộp:
-
-
-Email: Phải yêu cầu nhập và đúng định dạng email.
-
-
-Password: Phải tối thiểu 6 ký tự.
-
-
-Nút bấm: Phải bị Disable khi form không hợp lệ.
-
-
-Trường bắt buộc: Tên, Danh mục, Cấp độ là bắt buộc khi thêm khóa học.
-
-4. Hướng dẫn Deploy lên Vercel 
-
-Để nhận được điểm cộng lớn (significant plus point), hãy thực hiện:
-
-Đẩy code lên một Repository công khai trên GitHub.
-
-Truy cập Vercel.com, kết nối tài khoản GitHub.
-
-Chọn project lms-app.
-
-Trong phần Environment Variables, thêm biến NEXT_PUBLIC_API_URL với giá trị API đã cho.
-
-Nhấn Deploy.
+-Table Warning: Cập nhật từ pagination.position (deprecated) sang pagination.placement theo tiêu chuẩn mới nhất của Antd 5.
