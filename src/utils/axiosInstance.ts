@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getCookie } from 'cookies-next';
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://676ce733dfdd6501533088b9.mockapi.io/api/v1',
   headers: { 'Content-Type': 'application/json' }
 });
 
