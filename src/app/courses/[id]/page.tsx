@@ -1,53 +1,138 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import axiosInstance from "@/utils/axiosInstance";
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Form, Input, Button, Card, App, Spin, Space, Typography, Divider } from 'antd';
+import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import axiosInstance from '@/utils/axiosInstance';
 
-export default function CourseDetail() {
+const { Title } = Typography;
+
+export default function CourseDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [course, setCourse] = useState<any>(null);
+  const { message } = App.useApp();
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
+  // Lấy dữ liệu chi tiết khóa học từ API
   useEffect(() => {
-    // Gọi API lấy chi tiết khóa học theo ID
-    const fetchCourse = async () => {
+    const fetchCourseDetail = async () => {
       try {
-        const res = await axiosInstance.get(`/courses/${id}`);
-        setCourse(res.data);
+        const res = await axiosInstance.get(`/course/${id}`);
+        form.setFieldsValue(res.data);
       } catch (err) {
-        console.error("Không tìm thấy khóa học");
+        message.error("Không tìm thấy thông tin khóa học!");
+        router.push('/courses');
       } finally {
         setLoading(false);
       }
     };
-    fetchCourse();
-  }, [id]);
+    if (id) fetchCourseDetail();
+  }, [id, form, router, message]);
 
-  if (loading) return <p className="p-10 text-center">Đang tải dữ liệu...</p>;
+  // Xử lý cập nhật thông tin
+  const onFinish = async (values: any) => {
+    setSubmitting(true);
+    try {
+      await axiosInstance.put(`/course/${id}`, values);
+      message.success("Cập nhật thông tin thành công!");
+      router.push('/courses');
+    } catch (err) {
+      message.error("Lỗi khi cập nhật dữ liệu!");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <Spin size="large" />
+        <p className="mt-4 text-gray-500">Đang tải dữ liệu khóa học...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl p-6 mx-auto mt-10 border rounded-lg dark:border-slate-700">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold uppercase">{course?.name || "Tên khóa học"}</h1>
-        <span className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full dark:bg-blue-900 dark:text-blue-200">
-          ID: {id}
-        </span>
-      </div>
-      
-      <div className="p-4 bg-gray-50 dark:bg-slate-800 rounded-lg mb-6">
-        <h3 className="font-semibold mb-2">Mô tả chi tiết:</h3>
-        <p className="text-gray-700 dark:text-gray-300">
-          {course?.description || "Chưa có mô tả cho khóa học này."}
-        </p>
-      </div>
+    <div className="p-6 md:p-10 max-w-4xl mx-auto">
+      <Space className="mb-6">
+        <Button 
+          icon={<ArrowLeftOutlined />} 
+          onClick={() => router.push('/courses')}
+        >
+          Quay lại danh sách
+        </Button>
+      </Space>
 
-      <button 
-        onClick={() => router.push('/courses')}
-        className="text-blue-500 hover:underline"
-      >
-        &larr; Quay lại danh sách
-      </button>
+      <Card className="shadow-lg border-none">
+        <Title level={3} className="dark:text-white">Chi tiết khóa học #{id}</Title>
+        <Divider />
+        
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          requiredMark="optional"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+            <Form.Item
+              label="Tên khóa học"
+              name="title"
+              rules={[{ required: true, message: 'Vui lòng nhập tên khóa học!' }]}
+            >
+              <Input size="large" placeholder="Nhập tên khóa học" />
+            </Form.Item>
+
+            <Form.Item
+              label="Danh mục"
+              name="category"
+              rules={[{ required: true, message: 'Vui lòng nhập danh mục!' }]}
+            >
+              <Input size="large" placeholder="Ví dụ: Công nghệ thông tin" />
+            </Form.Item>
+
+            <Form.Item
+              label="Cấp độ"
+              name="level"
+              rules={[{ required: true, message: 'Vui lòng chọn/nhập cấp độ!' }]}
+            >
+              <Input size="large" placeholder="Ví dụ: Cơ bản, Nâng cao" />
+            </Form.Item>
+            
+            <Form.Item
+              label="Giảng viên"
+              name="instructor"
+            >
+              <Input size="large" placeholder="Tên giảng viên" />
+            </Form.Item>
+          </div>
+
+          <Form.Item
+            label="Mô tả khóa học"
+            name="description"
+          >
+            <Input.TextArea rows={5} placeholder="Nhập mô tả chi tiết về nội dung khóa học..." />
+          </Form.Item>
+
+          <Divider />
+          
+          <div className="flex justify-end gap-4">
+            <Button size="large" onClick={() => router.push('/courses')}>
+              Hủy bỏ
+            </Button>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              size="large" 
+              icon={<SaveOutlined />}
+              loading={submitting}
+            >
+              Lưu thay đổi
+            </Button>
+          </div>
+        </Form>
+      </Card>
     </div>
   );
 }

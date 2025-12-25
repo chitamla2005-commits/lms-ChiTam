@@ -1,52 +1,100 @@
 "use client";
-import { useState } from "react";
-import axiosInstance from "@/utils/axiosInstance";
-import { useRouter } from "next/navigation";
+import { Form, Input, Button, Card, App, Space, Typography, Divider } from 'antd';
+import { useRouter } from 'next/navigation';
+import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
+import axiosInstance from '@/utils/axiosInstance';
+import { useState } from 'react';
 
-export default function CreateCourse() {
-  const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
+const { Title } = Typography;
+
+export default function CreateCoursePage() {
   const router = useRouter();
+  const { message } = App.useApp();
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onFinish = async (values: any) => {
+    setLoading(true);
     try {
-      await axiosInstance.post("/courses", { name, description: desc });
-      alert("Tạo khóa học thành công!");
-      router.push("/courses");
-    } catch (error) {
-      alert("Lỗi khi tạo khóa học");
+      await axiosInstance.post('/course', values);
+      message.success("Tạo khóa học mới thành công!");
+      router.push('/courses');
+    } catch (err) {
+      message.error("Lỗi khi tạo khóa học. Vui lòng thử lại!");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl p-6 mx-auto mt-10 bg-white rounded-xl shadow-md dark:bg-slate-800">
-      <h1 className="mb-6 text-2xl font-bold">Tạo khóa học mới</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Tên khóa học</label>
-          <input 
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600"
-            placeholder="Nhập tên khóa học..."
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Mô tả</label>
-          <textarea 
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
-            className="w-full p-2 border rounded h-32 dark:bg-slate-700 dark:border-slate-600"
-            placeholder="Nhập mô tả..."
-          />
-        </div>
-        <div className="flex gap-3">
-          <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Lưu lại</button>
-          <button type="button" onClick={() => router.back()} className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Hủy</button>
-        </div>
-      </form>
+    <div className="p-6 md:p-10 max-w-4xl mx-auto">
+      <Button 
+        icon={<ArrowLeftOutlined />} 
+        onClick={() => router.push('/courses')}
+        className="mb-4"
+      >
+        Quay lại
+      </Button>
+
+      <Card className="shadow-lg border-none rounded-xl">
+        <Title level={3} className="dark:text-white">Thêm khóa học mới</Title>
+        <Divider />
+        
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          requiredMark="optional"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+            <Form.Item
+              label={<span className="font-medium dark:text-gray-300">Tên khóa học</span>}
+              name="title"
+              rules={[{ required: true, message: 'Vui lòng nhập tên khóa học!' }]}
+            >
+              <Input size="large" placeholder="Ví dụ: React NextJS Pro" />
+            </Form.Item>
+
+            <Form.Item
+              label={<span className="font-medium dark:text-gray-300">Danh mục</span>}
+              name="category"
+              rules={[{ required: true, message: 'Vui lòng nhập danh mục!' }]}
+            >
+              <Input size="large" placeholder="Ví dụ: Frontend Development" />
+            </Form.Item>
+
+            <Form.Item
+              label={<span className="font-medium dark:text-gray-300">Cấp độ</span>}
+              name="level"
+              rules={[{ required: true, message: 'Vui lòng nhập cấp độ!' }]}
+            >
+              <Input size="large" placeholder="Ví dụ: Beginner / Intermediate" />
+            </Form.Item>
+          </div>
+
+          <Form.Item
+            label={<span className="font-medium dark:text-gray-300">Mô tả chi tiết</span>}
+            name="description"
+          >
+            <Input.TextArea rows={4} placeholder="Nội dung tóm tắt khóa học..." />
+          </Form.Item>
+
+          <Divider />
+          
+          <div className="flex justify-end gap-4">
+            <Button size="large" onClick={() => router.push('/courses')}>Hủy</Button>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              size="large" 
+              icon={<PlusOutlined />}
+              loading={loading}
+            >
+              Xác nhận tạo mới
+            </Button>
+          </div>
+        </Form>
+      </Card>
     </div>
   );
 }

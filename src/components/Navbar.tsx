@@ -1,37 +1,78 @@
 "use client";
-import { useTheme } from "next-themes";
-import { deleteCookie } from "cookies-next";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Button, Layout, theme, Typography, Space, Tooltip } from 'antd';
+import { useRouter } from 'next/navigation';
+import { deleteCookie } from 'cookies-next';
+import { 
+  LogoutOutlined, 
+  HomeOutlined, 
+  UserOutlined, 
+  SunOutlined, 
+  MoonOutlined 
+} from '@ant-design/icons';
 
-export default function Navbar() {
-  const { theme, setTheme } = useTheme();
+const { Header } = Layout;
+const { Text } = Typography;
+
+interface NavbarProps {
+  isDark: boolean;
+  toggleTheme: () => void;
+}
+
+export default function Navbar({ isDark, toggleTheme }: NavbarProps) {
   const router = useRouter();
+  const { token } = theme.useToken();
 
   const handleLogout = () => {
-    deleteCookie("access_token");
-    router.push("/login");
+    deleteCookie('access_token');
+    router.push('/login');
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 border-b dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm">
-      <Link href="/courses" className="text-xl font-bold text-blue-600">LMS Admin</Link>
-      
-      <div className="flex items-center gap-4">
-        <button 
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-sm"
-        >
-          {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
-        </button>
+    <Header style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center',
+      background: token.colorBgContainer,
+      padding: '0 24px',
+      borderBottom: `1px solid ${token.colorBorderSecondary}`,
+      position: 'sticky',
+      top: 0,
+      zIndex: 1000,
+      width: '100%'
+    }}>
+      <Space className="cursor-pointer" onClick={() => router.push('/courses')}>
+        <HomeOutlined style={{ fontSize: '20px', color: token.colorPrimary }} />
+        <Text strong style={{ fontSize: '18px' }} className="dark:text-white">
+          LMS ADMIN
+        </Text>
+      </Space>
+
+      <Space size="large">
+        {/* Nút chuyển đổi Dark/Light Mode */}
+        <Tooltip title={isDark ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}>
+          <Button 
+            type="text" 
+            icon={isDark ? <SunOutlined /> : <MoonOutlined />} 
+            onClick={toggleTheme}
+            style={{ fontSize: '16px' }}
+          />
+        </Tooltip>
+
+        <Space className="hidden md:flex">
+          <UserOutlined />
+          <Text className="dark:text-gray-300">ChiTam Admin</Text>
+        </Space>
         
-        <button 
+        <Button 
+          type="primary" 
+          danger 
+          ghost
+          icon={<LogoutOutlined />} 
           onClick={handleLogout}
-          className="px-4 py-2 text-sm text-white bg-red-500 rounded-md hover:bg-red-600"
         >
           Đăng xuất
-        </button>
-      </div>
-    </nav>
+        </Button>
+      </Space>
+    </Header>
   );
 }

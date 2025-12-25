@@ -5,19 +5,25 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('access_token')?.value;
   const { pathname } = request.nextUrl;
 
-  // Bảo vệ route: Chỉ cho vào trang courses khi đã auth 
+  // 1. Nếu đã đăng nhập mà cố vào trang login -> Đẩy về trang danh sách
+  if (token && pathname === '/login') {
+    return NextResponse.redirect(new URL('/courses', request.url));
+  }
+
+  // 2. Nếu chưa đăng nhập mà vào các trang quản lý -> Đẩy về trang login
   if (!token && pathname.startsWith('/courses')) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Nếu đã login thì không cho quay lại trang login [cite: 17]
-  if (token && pathname === '/login') {
-    return NextResponse.redirect(new URL('/courses', request.url));
+  // 3. Trang chủ mặc định sẽ đẩy về trang login hoặc danh sách tùy trạng thái
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL(token ? '/courses' : '/login', request.url));
   }
 
   return NextResponse.next();
 }
 
+// Chỉ định các đường dẫn mà middleware sẽ chạy qua
 export const config = {
-  matcher: ['/courses/:path*', '/login'],
+  matcher: ['/', '/login', '/courses/:path*'],
 };

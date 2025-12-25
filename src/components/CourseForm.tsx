@@ -1,42 +1,32 @@
 "use client";
-import { Form, Input, Button } from "antd";
-import { useEffect } from "react";
+import { Form, Input, Button, Space } from 'antd';
+import { useRouter } from 'next/navigation';
 
-interface CourseFormProps {
-  initialValues?: any;
-  onFinish: (values: any) => void;
-  loading: boolean;
-}
-
-export default function CourseForm({ initialValues, onFinish, loading }: CourseFormProps) {
-  const [form] = Form.useForm();
-
-  useEffect(() => {
-    if (initialValues) {
-      form.setFieldsValue(initialValues);
-    }
-  }, [initialValues, form]);
-
+export default function CourseForm({ onFinish, initialValues, loading }: any) {
+  const router = useRouter();
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish} initialValues={initialValues}>
-      <Form.Item label="Course Name" name="title" rules={[{ required: true, message: 'Please input name!' }]}>
-        <Input />
+    <Form layout="vertical" onFinish={onFinish} initialValues={initialValues}>
+      <Form.Item label="Tên khóa học" name="title" rules={[{ required: true }]}>
+        <Input placeholder="Nhập tên khóa học" />
       </Form.Item>
-      <Form.Item label="Category" name="category" rules={[{ required: true, message: 'Please input category!' }]}>
-        <Input />
-      </Form.Item>
-      <Form.Item label="Level" name="level" rules={[{ required: true, message: 'Please input level!' }]}>
-        <Input />
-      </Form.Item>
-      <Form.Item label="Description" name="description">
+      <div className="grid grid-cols-2 gap-4">
+        <Form.Item label="Danh mục" name="category" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item label="Cấp độ" name="level" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+      </div>
+      <Form.Item label="Mô tả" name="description">
         <Input.TextArea rows={4} />
       </Form.Item>
       <Form.Item label="Thumbnail URL" name="thumbnail">
         <Input />
       </Form.Item>
-      <Button type="primary" htmlType="submit" loading={loading} block>
-        Submit
-      </Button>
+      <Space className="w-full justify-end">
+        <Button onClick={() => router.back()}>Hủy</Button>
+        <Button type="primary" htmlType="submit" loading={loading}>Lưu thông tin</Button>
+      </Space>
     </Form>
   );
 }

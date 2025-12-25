@@ -1,63 +1,55 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { message, Spin } from "antd"; // Bỏ import Card nếu bị lỗi type
-import axiosInstance from "@/utils/axiosInstance";
-import CourseForm from "@/components/CourseForm";
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Form, Input, Button, Card, message, Spin } from 'antd';
+import axiosInstance from '@/utils/axiosInstance';
 
-export default function EditCoursePage() {
-  const params = useParams();
-  const id = params?.id;
+export default function CourseDetail() {
+  const { id } = useParams(); // Lấy ID từ URL
   const router = useRouter();
-  const [course, setCourse] = useState(null);
-  const [fetching, setFetching] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true);
 
+  // Lấy dữ liệu chi tiết khóa học khi vào trang
   useEffect(() => {
-    const fetchCourse = async () => {
-      if (!id) return;
+    const getDetail = async () => {
       try {
-        // Fetch dữ liệu dựa trên ID từ URL [cite: 43]
-        const res: any = await axiosInstance.get(`/course/${id}`);
-        setCourse(res);
+        const res = await axiosInstance.get(`/course/${id}`);
+        form.setFieldsValue(res.data);
       } catch (error) {
-        message.error("Failed to fetch course data");
+        message.error("Không tìm thấy khóa học!");
       } finally {
-        setFetching(false);
+        setLoading(false);
       }
     };
-    fetchCourse();
-  }, [id]);
+    if (id) getDetail();
+  }, [id, form]);
 
-  const onFinish = async (values: any) => {
-    setSubmitting(true);
+  const onUpdate = async (values: any) => {
     try {
-      // Sử dụng phương thức PUT để cập nhật bản ghi [cite: 92, 93]
       await axiosInstance.put(`/course/${id}`, values);
-      message.success("Course updated successfully! [cite: 45]");
-      router.push("/courses"); // Redirect về danh sách [cite: 45]
+      message.success("Cập nhật thành công!");
+      router.push('/courses');
     } catch (error) {
-      message.error("Update failed");
-    } finally {
-      setSubmitting(false);
+      message.error("Lỗi khi cập nhật!");
     }
   };
 
+  if (loading) return <div className="flex justify-center p-20"><Spin size="large" /></div>;
+
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      {/* Thay Card bằng div + Tailwind để tránh lỗi Type và hỗ trợ Dark Mode  */}
-      <div className="bg-white dark:bg-slate-800 shadow-lg rounded-lg overflow-hidden border dark:border-slate-700">
-        <div className="px-6 py-4 border-b dark:border-slate-700">
-          <h2 className="text-xl font-bold dark:text-white">Update Course [cite: 38]</h2>
-        </div>
-        <div className="p-6">
-          {fetching ? (
-            <div className="flex justify-center p-10"><Spin /></div>
-          ) : (
-            <CourseForm initialValues={course} onFinish={onFinish} loading={submitting} />
-          )}
-        </div>
-      </div>
+    <div className="p-8 flex justify-center">
+      <Card title={`Chỉnh sửa khóa học ID: ${id}`} className="w-full max-w-2xl shadow-lg">
+        <Form form={form} layout="vertical" onFinish={onUpdate}>
+          <Form.Item label="Tiêu đề" name="title" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item label="Danh mục" name="category" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item label="Mô tả" name="description"><Input.TextArea rows={4} /></Form.Item>
+          <div className="flex justify-end gap-3">
+            <Button onClick={() => router.back()}>Quay lại</Button>
+            <Button type="primary" htmlType="submit">Cập nhật</Button>
+          </div>
+        </Form>
+      </Card>
     </div>
   );
 }
