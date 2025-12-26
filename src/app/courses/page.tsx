@@ -1,102 +1,114 @@
 "use client";
-import { Form, Input, Button, message } from "antd";
-import axiosInstance from "@/utils/axiosInstance";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Table, Button, Space, Popconfirm, message, Typography } from "antd";
+import axiosInstance from "@/utils/axiosInstance";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import Link from "next/link";
 
-export default function CreateCoursePage() {
-  const router = useRouter();
+const { Title } = Typography;
+
+export default function CourseListPage() {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
-  // Fix lỗi Hydration (Trang trắng)
+  // 1. Fix lỗi Hydration (Trang trắng)
   useEffect(() => {
     setMounted(true);
+    fetchCourses();
   }, []);
 
-  const onFinish = async (values: any) => {
+  // 2. Hàm lấy danh sách từ MockAPI
+  const fetchCourses = async () => {
     try {
-      // Đảm bảo gọi đến '/courses' (số nhiều) khớp với MockAPI
-      await axiosInstance.post("/courses", values);
-      message.success("Thêm khóa học thành công!");
-      router.push("/courses");
-    } catch (error: any) {
+      setLoading(true);
+      // Đảm bảo gọi '/courses' khớp với MockAPI của bạn
+      const res = await axiosInstance.get("/courses");
+      setCourses(res.data);
+    } catch (error) {
       console.error(error);
-      message.error("Không thể thêm khóa học. Vui lòng kiểm tra lại!");
+      message.error("Không thể kết nối đến server!");
+    } finally {
+      setLoading(false);
     }
   };
+
+  // 3. Hàm xóa khóa học
+  const handleDelete = async (id: string) => {
+    try {
+      await axiosInstance.delete(`/courses/${id}`);
+      message.success("Đã xóa khóa học thành công!");
+      fetchCourses(); // Load lại danh sách sau khi xóa
+    } catch (error) {
+      message.error("Lỗi khi xóa khóa học!");
+    }
+  };
+
+  const columns = [
+    { 
+      title: "Tên khóa học", 
+      dataIndex: "name", 
+      key: "name",
+      render: (text: string) => <span className="text-slate-200 font-medium">{text}</span>
+    },
+    { 
+      title: "Mô tả", 
+      dataIndex: "description", 
+      key: "description",
+      render: (text: string) => <span className="text-slate-400">{text}</span>
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_: any, record: any) => (
+        <Space size="middle">
+          <Link href={`/courses/edit/${record.id}`}>
+            <Button type="link" icon={<EditOutlined />} className="text-blue-400">Sửa</Button>
+          </Link>
+          <Popconfirm 
+            title="Bạn có chắc muốn xóa không?" 
+            onConfirm={() => handleDelete(record.id)}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Button type="link" danger icon={<DeleteOutlined />}>Xóa</Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
   if (!mounted) return <div className="min-h-screen bg-slate-950" />;
 
   return (
-    <div className="p-10 bg-slate-950 min-h-screen">
-      {/* CSS ghi đè để Ant Design hiển thị đẹp trên nền tối */}
+    <div className="p-8 bg-slate-950 min-h-screen">
+      {/* CSS fix giao diện bảng cho Dark Mode */}
       <style jsx global>{`
-        .ant-form-item-label > label {
-          color: #f8fafc !important; /* Màu chữ trắng cho Label */
-          font-weight: 500;
-        }
-        .ant-input, .ant-input-textarea {
-          background-color: #1e293b !important; /* Nền tối cho Input */
-          color: #ffffff !important; /* Chữ trắng trong Input */
-          border-color: #334155 !important;
-        }
-        .ant-input::placeholder {
-          color: #64748b !important;
-        }
-        .ant-input:focus {
-          border-color: #3b82f6 !important;
-          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
-        }
+        .ant-table { background: #0f172a !important; color: white !important; }
+        .ant-table-thead > tr > th { background: #1e293b !important; color: #94a3b8 !important; border-bottom: 1px solid #334155 !important; }
+        .ant-table-tbody > tr > td { border-bottom: 1px solid #1e293b !important; }
+        .ant-table-row:hover > td { background: #1e293b !important; }
+        .ant-pagination-item-active { background: #3b82f6 !important; border-color: #3b82f6 !important; }
+        .ant-pagination-item a { color: white !important; }
       `}</style>
 
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-8">Tạo khóa học mới</h1>
-        
-        <Form
-          layout="vertical"
-          onFinish={onFinish}
-          autoComplete="off"
-          requiredMark={false}
-        >
-          <Form.Item
-            name="name"
-            label="Tên khóa học"
-            rules={[{ required: true, message: "Vui lòng nhập tên khóa học!" }]}
-          >
-            <Input size="large" placeholder="Ví dụ: React NextJS Basic" />
-          </Form.Item>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <Title level={2} style={{ color: "white", margin: 0 }}>Quản lý khóa học</Title>
+          <Link href="/courses/create">
+            <Button type="primary" icon={<PlusOutlined />} size="large" className="bg-blue-600 hover:bg-blue-700">
+              Thêm khóa học mới
+            </Button>
+          </Link>
+        </div>
 
-          <Form.Item
-            name="description"
-            label="Mô tả khóa học"
-            rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
-          >
-            <Input.TextArea 
-              rows={5} 
-              placeholder="Nhập chi tiết nội dung khóa học..." 
-            />
-          </Form.Item>
-
-          <Form.Item className="mt-8">
-            <div className="flex gap-4">
-              <Button 
-                type="primary" 
-                htmlType="submit" 
-                size="large" 
-                className="bg-blue-600 hover:bg-blue-700 h-auto py-2 px-8"
-              >
-                Lưu khóa học
-              </Button>
-              <Button 
-                size="large" 
-                onClick={() => router.back()}
-                className="bg-slate-800 text-white border-slate-700 hover:bg-slate-700"
-              >
-                Hủy bỏ
-              </Button>
-            </div>
-          </Form.Item>
-        </Form>
+        <Table 
+          columns={columns} 
+          dataSource={courses} 
+          rowKey="id" 
+          loading={loading}
+          pagination={{ pageSize: 8 }}
+        />
       </div>
     </div>
   );
