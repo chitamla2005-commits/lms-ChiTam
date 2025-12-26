@@ -44,6 +44,25 @@ export default function CourseListPage() {
     <div className="p-8 bg-[#f0f2f5] min-h-screen">
       {/* Ép giao diện về chế độ SÁNG chuẩn Ant Design */}
       <style jsx global>{`
+      .dark .ant-table { 
+  background: #1e293b !important; 
+  color: #f8fafc !important; 
+}
+.dark .ant-table-thead > tr > th { 
+  background: #334155 !important; 
+  color: #94a3b8 !important; 
+  border-bottom: 1px solid #475569 !important; 
+}
+.dark .ant-table-tbody > tr > td { 
+  border-bottom: 1px solid #334155 !important; 
+  color: #f8fafc !important; 
+}
+.dark .ant-table-row:hover > td { 
+  background: #334155 !important; 
+}
+.dark h1, .dark h2 { 
+  color: #ffffff !important; 
+}
         .ant-table { background: #ffffff !important; color: rgba(0, 0, 0, 0.88) !important; }
         .ant-table-thead > tr > th { background: #fafafa !important; color: rgba(0, 0, 0, 0.88) !important; border-bottom: 1px solid #f0f0f0 !important; }
         .ant-table-tbody > tr > td { border-bottom: 1px solid #f0f0f0 !important; }
