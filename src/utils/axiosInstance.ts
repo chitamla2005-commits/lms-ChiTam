@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-// Lấy link từ Vercel, nếu không có thì dùng link bạn vừa gửi (bỏ chữ /courses ở cuối)
+// Ưu tiên lấy từ Vercel, nếu không có sẽ dùng link MockAPI của bạn làm mặc định
 const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || 'https://694dce16b5bc648a93bec69d.mockapi.io';
 
 const axiosInstance = axios.create({
-  baseURL: rawBaseURL.replace(/\/$/, ""), // Xóa dấu gạch chéo cuối cùng nếu bạn lỡ tay nhập vào
+  // Tự động dọn dẹp link để tránh lỗi nhân đôi đường dẫn
+  baseURL: rawBaseURL.replace(/\/$/, ""), 
   headers: {
     'Content-Type': 'application/json',
   },
