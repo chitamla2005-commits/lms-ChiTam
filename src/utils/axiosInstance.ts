@@ -1,17 +1,13 @@
 import axios from 'axios';
-import { getCookie } from 'cookies-next';
+
+// Lấy link từ Vercel, nếu không có thì dùng link bạn vừa gửi (bỏ chữ /courses ở cuối)
+const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || 'https://694dce16b5bc648a93bec69d.mockapi.io';
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://676ce733dfdd6501533088b9.mockapi.io/api/v1',
-  headers: { 'Content-Type': 'application/json' }
-});
-
-axiosInstance.interceptors.request.use((config) => {
-  const token = getCookie('access_token');
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+  baseURL: rawBaseURL.replace(/\/$/, ""), // Xóa dấu gạch chéo cuối cùng nếu bạn lỡ tay nhập vào
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 export default axiosInstance;
