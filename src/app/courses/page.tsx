@@ -41,50 +41,39 @@ export default function CourseListPage() {
   if (!mounted) return null;
 
   return (
-    <div className="p-8 bg-[#f0f2f5] min-h-screen">
-      {/* Ép giao diện về chế độ SÁNG chuẩn Ant Design */}
+    <div className="p-8 min-h-screen transition-colors duration-300 bg-[#f0f2f5] dark:bg-[#020617]">
+      {/* CSS fix triệt để cái nền trắng bao quanh bảng trong ảnh của bạn */}
       <style jsx global>{`
-      .dark .ant-table { 
-  background: #1e293b !important; 
-  color: #f8fafc !important; 
-}
-.dark .ant-table-thead > tr > th { 
-  background: #334155 !important; 
-  color: #94a3b8 !important; 
-  border-bottom: 1px solid #475569 !important; 
-}
-.dark .ant-table-tbody > tr > td { 
-  border-bottom: 1px solid #334155 !important; 
-  color: #f8fafc !important; 
-}
-.dark .ant-table-row:hover > td { 
-  background: #334155 !important; 
-}
-.dark h1, .dark h2 { 
-  color: #ffffff !important; 
-}
-        .ant-table { background: #ffffff !important; color: rgba(0, 0, 0, 0.88) !important; }
-        .ant-table-thead > tr > th { background: #fafafa !important; color: rgba(0, 0, 0, 0.88) !important; border-bottom: 1px solid #f0f0f0 !important; }
-        .ant-table-tbody > tr > td { border-bottom: 1px solid #f0f0f0 !important; }
-        .ant-table-row:hover > td { background: #f5f5f5 !important; }
-        h1 { color: #1f1f1f !important; }
+        /* Chế độ tối: Fix nền Card và Bảng */
+        .dark .ant-table-wrapper { background: #0f172a !important; padding: 20px; border-radius: 8px; }
+        .dark .ant-table { background: #0f172a !important; color: #f8fafc !important; }
+        .dark .ant-table-thead > tr > th { background: #1e293b !important; color: #94a3b8 !important; border-bottom: 1px solid #334155 !important; }
+        .dark .ant-table-tbody > tr > td { border-bottom: 1px solid #1e293b !important; color: #f8fafc !important; }
+        .dark .ant-table-row:hover > td { background: #1e293b !important; }
+        .dark .ant-pagination-item a { color: white !important; }
+        .dark h1 { color: white !important; }
+        
+        /* Loại bỏ bóng trắng của Card AntD nếu bạn có dùng bao ngoài */
+        .dark .ant-card { background: #0f172a !important; border-color: #334155 !important; }
       `}</style>
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Quản lý khóa học</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold dark:text-white">Quản lý khóa học</h1>
           <Link href="/courses/create">
-            <Button type="primary" icon={<PlusOutlined />} size="large" className="bg-[#1677ff]">
+            <Button type="primary" icon={<PlusOutlined />} size="large" className="bg-blue-600">
               Thêm khóa học mới
             </Button>
           </Link>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm">
+        {/* Thêm class dark:bg-slate-900 để đồng bộ nền khi chuyển chế độ */}
+        <div className="bg-white dark:bg-[#0f172a] p-6 rounded-xl shadow-lg transition-all">
           <Table 
             dataSource={courses} 
             rowKey="id" 
             loading={loading}
+            pagination={{ pageSize: 8 }}
             columns={[
               { title: "Tên khóa học", dataIndex: "name", key: "name" },
               { title: "Mô tả", dataIndex: "description", key: "description" },
